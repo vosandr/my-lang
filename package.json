@@ -1,0 +1,13 @@
+{
+  "name": "tylerceby-lang-create-ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Andrey <vosirandr@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "deno": "^0.1.1"
+  },
+  "scripts": {
+    "start": "deno run -A ./src/main.ts"
+  }
+}
