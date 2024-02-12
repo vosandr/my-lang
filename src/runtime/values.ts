@@ -1,4 +1,4 @@
-export type ValueType= "null" | "number" | "boolean";
+export type ValueType = "null" | "number" | "boolean" | "object";
 export interface RuntimeVal {
   type: ValueType;
 }
@@ -8,8 +8,8 @@ export interface NullVal extends RuntimeVal {
   value: null;
 }
 
-export function MK_NULL () {
-  return {type: "null", value: null} as NullVal;
+export function MK_NULL() {
+  return { type: "null", value: null } as NullVal;
 }
 
 export interface BooleanVal extends RuntimeVal {
@@ -17,8 +17,8 @@ export interface BooleanVal extends RuntimeVal {
   value: boolean;
 }
 
-export function MK_BOOL (b = true) {
-  return {type: "boolean", value: b} as BooleanVal;
+export function MK_BOOL(b = true) {
+  return { type: "boolean", value: b } as BooleanVal;
 }
 
 export interface NumberVal extends RuntimeVal {
@@ -26,6 +26,11 @@ export interface NumberVal extends RuntimeVal {
   value: number;
 }
 
-export function MK_NUMBER (n=0) {
-  return {type: "number", value: n} as NumberVal;
+export function MK_NUMBER(n = 0) {
+  return { type: "number", value: n } as NumberVal;
+}
+
+export interface ObjectVal extends RuntimeVal {
+  type: "object";
+  properties: Map<string, RuntimeVal>
 }

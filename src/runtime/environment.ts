@@ -1,4 +1,10 @@
-import { RuntimeVal } from "./values.ts";
+import { MK_BOOL, MK_NULL, RuntimeVal } from "./values.ts";
+
+function setupScope(env: Environment) {
+  env.declareVar(("true"), MK_BOOL(true), true);
+  env.declareVar(("false"), MK_BOOL(false), true);
+  env.declareVar(("null"), MK_NULL(), true);
+}
 
 export default class Environment {
   private parent?: Environment;
@@ -6,9 +12,14 @@ export default class Environment {
   private constants: Set<string>;
 
   constructor(parentENV?: Environment) {
+    const global = parentENV ? true : false;
     this.parent = parentENV;
     this.variables = new Map();
     this.constants = new Set();
+
+    if (global) {
+      setupScope(this);
+    }
   }
 
   public declareVar(
@@ -24,7 +35,7 @@ export default class Environment {
 
     this.variables.set(varname, value);
 
-    if(constant) {
+    if (constant) {
       this.constants.add(varname);
     }
     return value;
@@ -34,10 +45,10 @@ export default class Environment {
     const env = this.resolve(varname);
 
     // Cannot assign to constant
-    if(env.constants.has(varname)) {
+    if (env.constants.has(varname)) {
       throw (`Cannot reasign to variable ${varname} as it vas declared constant.`)
     }
-    
+
     env.variables.set(varname, value);
     return value;
   }

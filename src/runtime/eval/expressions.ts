@@ -1,32 +1,32 @@
-import { AssignmentExpr, BinaryExpr, Identifier } from "../../frontend/ast.ts";
+import { AssignmentExpr, BinaryExpr, Identifier, ObjectLiteral } from "../../frontend/ast.ts";
 import Environment from "../environment.ts";
 import { evaluate } from "../interpreter.ts";
 import { NumberVal, RuntimeVal, MK_NULL } from "../values.ts";
 
 function eval_numeric_binary_expr(
-  lhs: NumberVal, 
-  rhs: NumberVal, 
+  lhs: NumberVal,
+  rhs: NumberVal,
   operator: string
-  ): NumberVal {
+): NumberVal {
 
   let result: number;
   if (operator == "+") {
-    result = lhs.value+rhs.value;
+    result = lhs.value + rhs.value;
   } else if (operator == "-") {
-    result = lhs.value-rhs.value;
+    result = lhs.value - rhs.value;
   } else if (operator == "*") {
-    result = lhs.value*rhs.value;
+    result = lhs.value * rhs.value;
   } else if (operator == "/") {
     // TODO: Divison by zero checks
-    result = lhs.value/rhs.value;
+    result = lhs.value / rhs.value;
   } else if (operator == "%") {
-    result = lhs.value%rhs.value;
+    result = lhs.value % rhs.value;
   } else {
     throw `Unsigned Symbol`
   }
-  return { value: result, type: "number"};
+  return { value: result, type: "number" };
 }
-export function eval_binary_expr (binop: BinaryExpr, env: Environment): RuntimeVal {
+export function eval_binary_expr(binop: BinaryExpr, env: Environment): RuntimeVal {
   const lhs = evaluate(binop.left, env);
   const rhs = evaluate(binop.right, env);
 
@@ -38,16 +38,20 @@ export function eval_binary_expr (binop: BinaryExpr, env: Environment): RuntimeV
   return MK_NULL();
 }
 
-export function eval_identifier (ident: Identifier, env: Environment): RuntimeVal {
+export function eval_identifier(ident: Identifier, env: Environment): RuntimeVal {
   const val = env.lookupVar(ident.symbol);
   return val;
-} 
+}
 
-export function eval_assignment (node: AssignmentExpr, env: Environment): RuntimeVal {
+export function eval_assignment(node: AssignmentExpr, env: Environment): RuntimeVal {
   if (node.assigne.kind !== "Identifier") {
     throw (`Invalid LHS inside assignment expr ${JSON.stringify((node.assigne))}`);
-    
+
   }
-  const varname=(node.assigne as Identifier).symbol;
+  const varname = (node.assigne as Identifier).symbol;
   return env.assignVar(varname, evaluate(node.value, env));
+}
+
+export function eval_objeсt_expr(obj: ObjectLiteral, env: Environment): RuntimeVal {
+
 }
