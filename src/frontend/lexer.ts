@@ -8,24 +8,27 @@ export enum TokenType {
 
   // Keywords
   Let,
-  Con,
+  Const,
 
   // Grouping * Operators
   Equals,
   Semicolon,
   Comma,
+  Dot,
   Colon,
-  OpenParent, // (
-  CloseParent, // )
-  OpenBrace, // [
-  CloseBrace, // ]
+  OpenParen,// (
+  CloseParen,// )
+  OpenBrace,// {
+  CloseBrace,// }
+  CloseBracket,// ]
+  OpenBracket,// [
   BinaryOperator,
-  EOF, // Signified the end of file
+  EOF
 }
 
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
-  con: TokenType.Con,
+  con: TokenType.Const,
 }
 
 export interface Token {
@@ -59,9 +62,9 @@ export function tokenize(sourceCode: string): Token[] {
   // Build each until end of file
   while (src.length > 0) {
     if (src[0] == '(') {
-      tokens.push(token(src.shift(), TokenType.OpenParent));
+      tokens.push(token(src.shift(), TokenType.OpenParen));
     } else if (src[0] == ')') {
-      tokens.push(token(src.shift(), TokenType.CloseParent));
+      tokens.push(token(src.shift(), TokenType.CloseParen));
     }
 
     else if (src[0] == '{') {
@@ -70,6 +73,13 @@ export function tokenize(sourceCode: string): Token[] {
 
     else if (src[0] == '}') {
       tokens.push(token(src.shift(), TokenType.CloseBrace))
+    }
+    else if (src[0] == '[') {
+      tokens.push(token(src.shift(), TokenType.OpenBracket))
+    }
+
+    else if (src[0] == ']') {
+      tokens.push(token(src.shift(), TokenType.CloseBracket))
     }
 
     else if (src[0] == "+" || src[0] == "-" || src[0] == "*" || src[0] == "/" || src[0] == "%") {
@@ -90,7 +100,9 @@ export function tokenize(sourceCode: string): Token[] {
     else if (src[0] == ",") {
       tokens.push(token(src.shift(), TokenType.Comma));
     }
-
+    else if (src[0] == ".") {
+      tokens.push(token(src.shift(), TokenType.Dot));
+    }
     else {
       // Handle multicharacter tokens
 
@@ -114,9 +126,11 @@ export function tokenize(sourceCode: string): Token[] {
         } else {
           tokens.push(token(ident, TokenType.Identifier));
         }
-      } else if (isskipppable(src[0])) {
+      } 
+      else if (isskipppable(src[0])) {
         src.shift()
-      } else {
+      } 
+      else {
         throw (`Unrecognized character found in source: ${src[0].charCodeAt(0)} ${src[0]}`);
       }
 
