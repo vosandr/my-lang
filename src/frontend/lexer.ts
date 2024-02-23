@@ -37,7 +37,7 @@ export interface Token {
 
 }
 
-function token(value: string, type: TokenType): Token {
+function token(value="", type: TokenType): Token {
   return { value, type };
 }
 

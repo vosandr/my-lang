@@ -1,1 +1,8 @@
+let foo = 5*2;
+foo = foo/4+5
 
+prin(foo, 45)
+
+con timeNow = time();
+
+prin(timeNow)

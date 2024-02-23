@@ -35,7 +35,7 @@ export default class Parser {
   private expect(type: TokenType, err: any) {
     const prev = this.tokens.shift() as Token;
     if (!prev || prev.type != type) {
-      console.error(`Parser Error:\n${err + prev} - Expecting: ${type}`)
+      throw console.error(`Parser Error:\n${err + prev} - Expecting: ${type}`);
     }
 
     return prev;
@@ -70,7 +70,9 @@ export default class Parser {
 
   parse_var_declaration(): Stmt {
     const isConstant = this.eat().type == TokenType.Const;
-    const identifier = this.expect(TokenType.Identifier, "Expected identifier name following let | const keywords.").value;
+    const identifier = this.expect(
+      TokenType.Identifier, "Expected identifier name following let | const keywords."
+      ).value;
     if (this.at().type == TokenType.Semicolon) {
       this.eat();
       if (isConstant) {
@@ -127,7 +129,7 @@ export default class Parser {
       // Allows shorthand key: pair -> { key }
       if (this.at().type == TokenType.Comma) {
         this.eat(); // Advance past comma
-        properties.push({ key, kind: "Property" } as unknown as Property);
+        properties.push({ key, kind: "Property" } as Property);
         continue;
       } else if (this.at().type == TokenType.CloseBrace) {
         properties.push({ key, kind: "Property" });
@@ -242,7 +244,7 @@ export default class Parser {
         computed = false;
         property = this.parse_primary_expr();
 
-        if (property.kind!= "Identifier") {
+        if (property.kind != "Identifier") {
           throw (`Cannot use dot operator without right hand side being a identifier`);
         } else { // this allows obj[computedValue]
           computed = true;
