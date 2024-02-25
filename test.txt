@@ -1,8 +1,8 @@
-let foo = 5*2;
-foo = foo/4+5
+fn add (x,y) {
+  let result = x+y;
+  result + 5
+}
 
-prin(foo, 45)
+con result = add(10, 4)
 
-con timeNow = time();
-
-prin(timeNow)
+prin(result)

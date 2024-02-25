@@ -9,6 +9,7 @@ export enum TokenType {
   // Keywords
   Let,
   Const,
+  Fn,
 
   // Grouping * Operators
   Equals,
@@ -29,6 +30,7 @@ export enum TokenType {
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
   con: TokenType.Const,
+  fn: TokenType.Fn,
 }
 
 export interface Token {
@@ -52,7 +54,7 @@ function isint(str: string) {
 }
 
 function isskipppable(str: string) {
-  return str == ' ' || str == '\n' || str == '\t' || str == "\r";
+  return str == " " || str == '\n' || str == '\t' || str == "\r";
 }
 
 export function tokenize(sourceCode: string): Token[] {
@@ -63,7 +65,8 @@ export function tokenize(sourceCode: string): Token[] {
   while (src.length > 0) {
     if (src[0] == '(') {
       tokens.push(token(src.shift(), TokenType.OpenParen));
-    } else if (src[0] == ')') {
+    } 
+    else if (src[0] == ')') {
       tokens.push(token(src.shift(), TokenType.CloseParen));
     }
 
@@ -123,7 +126,8 @@ export function tokenize(sourceCode: string): Token[] {
         const reserved = KEYWORDS[ident];
         if (typeof reserved == "number") {
           tokens.push(token(ident, reserved));
-        } else {
+        } 
+        else {
           tokens.push(token(ident, TokenType.Identifier));
         }
       } 
@@ -131,7 +135,7 @@ export function tokenize(sourceCode: string): Token[] {
         src.shift()
       } 
       else {
-        throw (`Unrecognized character found in source: ${src[0].charCodeAt(0)} ${src[0]}`);
+        throw console.error(`Unrecognized character found in source: ${src[0].charCodeAt(0)} ${src[0]}`);
       }
 
     }

@@ -1,22 +1,21 @@
 import {
-  Stmt,
-  Program,
-  Expr,
-  BinaryExpr,
-  NumericLiteral,
-  Identifier,
-  VarDeclaration,
   AssignmentExpr,
-  ObjectLiteral,
-  Property,
+  BinaryExpr,
   CallExpr,
-  MemberExpr
+  Expr,
+  Identifier,
+  MemberExpr,
+  NumericLiteral,
+  ObjectLiteral,
+  Program,
+  Property,
+  Stmt,
+  VarDeclaration,
+  FunctionDeclaration,
 } from './ast.ts';
 
 import { tokenize, Token, TokenType } from './lexer.ts';
 
-
-// import Deno from 'deno';
 export default class Parser {
   private tokens: Token[] = [];
   private not_eof(): boolean {
@@ -35,7 +34,7 @@ export default class Parser {
   private expect(type: TokenType, err: any) {
     const prev = this.tokens.shift() as Token;
     if (!prev || prev.type != type) {
-      throw console.error(`Parser Error:\n${err + prev} - Expecting: ${type}`);
+      throw console.error("Parser Error:\n", err, prev, "- Expecting: ${type}");
     }
 
     return prev;
@@ -62,10 +61,43 @@ export default class Parser {
       case TokenType.Let:
       case TokenType.Const:
         return this.parse_var_declaration();
+      case TokenType.Fn:
+        return this.parse_fn_declaration();
       default:
         return this.parse_expr();
     }
 
+  }
+  parse_fn_declaration(): Stmt {
+    this.eat();
+    const name = this.expect(TokenType.Identifier, "Expected function name following fn keyboard").value;
+
+    const args = this.parse_args();
+    console.log(args);
+    const params: string[] = [];
+    for (const arg of args) {
+      if(arg.kind !== "Identifier") {
+        console.log(arg);
+        throw "Inside function declaration expected parameters to be of type string.";
+      }
+
+      params.push((arg as Identifier).symbol);
+    }
+
+    this.expect(TokenType.OpenBrace, "Expected function body following declaration");
+
+    const body: Stmt[] = [];
+
+    while (this.at().type !== TokenType.EOF && this.at().type !== TokenType.CloseBrace) {
+      body.push(this.parse_stmt());
+    }
+
+    this.expect(TokenType.CloseBrace, "Closing brace expected inside function declaration");
+    const fn = {
+      body, parameters: params, kind: "FunctionDeclaration"
+    } as FunctionDeclaration;
+
+    return fn;
   }
 
   parse_var_declaration(): Stmt {
@@ -76,7 +108,7 @@ export default class Parser {
     if (this.at().type == TokenType.Semicolon) {
       this.eat();
       if (isConstant) {
-        throw (`Must assign value to constant expression. No value provided.`)
+        throw `Must assign value to constant expression. No value provided.`;
       }
       return { kind: "VarDeclaration", identifier, constant: false } as VarDeclaration;
     }
@@ -98,16 +130,16 @@ export default class Parser {
 
 
   private parse_expr(): Expr {
-    return this.parse_assignment_expr();
+    return this.parse_asnt_expr();
 
   }
 
-  private parse_assignment_expr(): Expr {
+  private parse_asnt_expr(): Expr {
     const left = this.parse_object_expr();
 
     if (this.at().type == TokenType.Equals) {
       this.eat();
-      const value = this.parse_assignment_expr();
+      const value = this.parse_asnt_expr();
       return { value, assigne: left, kind: "AssignmentExpr" } as AssignmentExpr;
     }
 
@@ -164,7 +196,6 @@ export default class Parser {
         right,
         operator,
       } as BinaryExpr
-
     }
     return left;
   }
@@ -222,10 +253,10 @@ export default class Parser {
   }
   // foo(x=5, v="Bar")
   private parse_args_list(): Expr[] {
-    const args = [this.parse_expr()];
+    const args = [this.parse_asnt_expr()];
 
     while (this.at().type == TokenType.Comma && this.eat()) {
-      args.push(this.parse_assignment_expr());
+      args.push(this.parse_asnt_expr());
     }
 
     return args;
@@ -234,7 +265,8 @@ export default class Parser {
   private parse_member_expr(): Expr {
     let object = this.parse_primary_expr();
 
-    while(this.at().type == TokenType.Dot || this.at().type == TokenType.OpenBracket) {
+    while(
+      this.at().type == TokenType.Dot || this.at().type == TokenType.OpenBracket) {
       const operator = this.eat();
       let property: Expr;
       let computed: boolean;
@@ -245,24 +277,25 @@ export default class Parser {
         property = this.parse_primary_expr();
 
         if (property.kind != "Identifier") {
-          throw (`Cannot use dot operator without right hand side being a identifier`);
-        } else { // this allows obj[computedValue]
-          computed = true;
-          property = this.parse_expr();
-          this.expect(TokenType.CloseBracket, 'Missing closing bracket in computed value.')
-        }
+          throw `Cannot use dot operator without right hand side being a identifier`;
+        } 
 
+ 
+      }
+      else { // this allows obj[computedValue]
+        computed = true;
+        property = this.parse_expr();
+        this.expect(TokenType.CloseBracket, 'Missing closing bracket in computed value.')
+      }
         object = {
           kind: "MemberExpr",
           object,
           property,
-          computed
-        } as MemberExpr
-      }
+          computed,
+        } as MemberExpr;
       
-      return object;
     }
-
+    return object;
 
   }
   // Orders of prescindence
@@ -291,7 +324,7 @@ export default class Parser {
         // case TokenType.Semicolon:
       }
       default:
-        throw (`Unexpected token found during parsing! '${this.at().value}'`)
+        throw console.error(`Unexpected token found during parsing! '"${this.at().value}": "${this.at().type}"'`)
       // console.error("Unexpected token found during parsing!", this.at());
       // Deno.exit(1);
       // Tricks for compiler for TS
