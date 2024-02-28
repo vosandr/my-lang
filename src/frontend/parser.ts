@@ -105,7 +105,7 @@ export default class Parser {
     const identifier = this.expect(
       TokenType.Identifier, "Expected identifier name following let | const keywords."
       ).value;
-    if (this.at().type == TokenType.Semicolon) {
+    if (this.at().type == TokenType.Semicol) {
       this.eat();
       if (isConstant) {
         throw `Must assign value to constant expression. No value provided.`;
@@ -122,7 +122,7 @@ export default class Parser {
       constant: isConstant
     } as VarDeclaration;
 
-    this.expect(TokenType.Semicolon, `Variable declaration statement must end with semicolon.`);
+    this.expect(TokenType.Semicol, `Variable declaration statement must end with semicolon.`);
 
     return declaration;
   }
@@ -221,7 +221,7 @@ export default class Parser {
   private parse_call_member_expr(): Expr {
     const member = this.parse_member_expr();
 
-    if (this.at().type == TokenType.OpenParen) {
+    if (this.at().type == TokenType.OpParen) {
       return this.parse_call_expr(member);
     }
 
@@ -235,7 +235,7 @@ export default class Parser {
       args: this.parse_args(),
     } as CallExpr;
 
-    if (this.at().type == TokenType.OpenParen) {
+    if (this.at().type == TokenType.OpParen) {
       call_expr = this.parse_call_expr(call_expr);
     }
 
@@ -243,12 +243,12 @@ export default class Parser {
   }
 
   private parse_args(): Expr[] {
-    this.expect(TokenType.OpenParen, "Expected open parenthesis");
-    const args = this.at().type == TokenType.CloseParen
+    this.expect(TokenType.OpParen, "Expected open parenthesis");
+    const args = this.at().type == TokenType.ClParen
       ? []
       : this.parse_args_list();
 
-    this.expect(TokenType.CloseParen, "Missing closing parenthesis inside args list");
+    this.expect(TokenType.ClParen, "Missing closing parenthesis inside args list");
     return args;
   }
   // foo(x=5, v="Bar")
@@ -266,7 +266,7 @@ export default class Parser {
     let object = this.parse_primary_expr();
 
     while(
-      this.at().type == TokenType.Dot || this.at().type == TokenType.OpenBracket) {
+      this.at().type == TokenType.Dot || this.at().type == TokenType.OpBracket) {
       const operator = this.eat();
       let property: Expr;
       let computed: boolean;
@@ -285,7 +285,7 @@ export default class Parser {
       else { // this allows obj[computedValue]
         computed = true;
         property = this.parse_expr();
-        this.expect(TokenType.CloseBracket, 'Missing closing bracket in computed value.')
+        this.expect(TokenType.ClBracket, 'Missing closing bracket in computed value.')
       }
         object = {
           kind: "MemberExpr",
@@ -314,18 +314,17 @@ export default class Parser {
         return { kind: "Identifier", symbol: this.eat().value } as Identifier;
       case TokenType.Number:
         return { kind: "NumericLiteral", value: parseFloat(this.eat().value) } as NumericLiteral;
-      case TokenType.OpenParen: {
+      case TokenType.OpParen: {
         this.eat(); // eat the opening parent
         const value = this.parse_expr();
-        this.expect(TokenType.CloseParen, "Unexpected token found inside parenthesised expression. Expected closing parenthesis.");
+        this.expect(TokenType.ClParen, "Unexpected token found inside parenthesised expression. Expected closing parenthesis.");
         return value;
 
 
         // case TokenType.Semicolon:
       }
       default:
-        throw console.error(`Unexpected token found during parsing! '"${this.at().value}": "${this.at().type}"'`)
-      // console.error("Unexpected token found during parsing!", this.at());
+        throw console.error(`Unexpected token found during parsing! '"${this.at().value}": "${this.at().type}"'`);
       // Deno.exit(1);
       // Tricks for compiler for TS
       // return {} as Stmt;
