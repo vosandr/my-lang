@@ -1,5 +1,5 @@
 {
-  "name": "tylerceby-lang-create-ts",
+  "name": "my-lang",
   "version": "1.0.0",
   "author": "Andrey <vosirandr@gmail.com>",
   "license": "MIT",
@@ -13,5 +13,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.20"
-  }
+  },
+  "main": "src/main.ts"
+
 }
